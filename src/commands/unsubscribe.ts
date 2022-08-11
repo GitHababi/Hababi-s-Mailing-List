@@ -1,5 +1,6 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction } from "discord.js";
 import { connection,User } from "../database";
+import * as logger from '../utils/console'
 module.exports = { 
     data: new SlashCommandBuilder()
             .setName("unsubscribe")
@@ -14,7 +15,7 @@ module.exports = {
                 interaction.editReply('You have been unsubscribed from the mailing list. :cry: :middle_finger:')
                 connection.collection('users').deleteOne({user: interaction.member?.user.id})
                 user.delete()
-                console.log(`[\x1b[36mHML\x1b[37m] User ${interaction.member?.user.username} unsubscribed to the Mailing List`);
+                logger.info(`User ${interaction.member?.user.username} unsubscribed from the Mailing List`);
             }
             else
                 interaction.editReply("You are not subscribed!")

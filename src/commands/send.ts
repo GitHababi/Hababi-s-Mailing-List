@@ -1,6 +1,8 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder, EmbedAssertions, Attachment } from "discord.js";
-import { connection,User } from "../database";
+import { connection, User, Post } from "../database";
 import { client } from '../index';
+import * as logger from '../utils/console'
+
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('send')
@@ -14,16 +16,19 @@ module.exports = {
                   .setDescription('Title of the embed')
                   .setRequired(true)),
     execute: async (interaction: ChatInputCommandInteraction) => {
-        
-        await interaction.deferReply({ephemeral : true})
-        
         if (interaction.user.id !== process.env.adminUserId)
-            return
+            return    
+        await interaction.deferReply({ephemeral : true})
+            
         const title = interaction.options.getString('title');
         const attachment = interaction.options.getAttachment('attachment')?.proxyURL ?? '';
         const embed = new EmbedBuilder()
                         .setTitle(title)
                         .setImage(attachment)
+        console.log(embed.data ?? 'ERORR: not foond')    
+        let post = new Post({title: title, attachment: attachment, timestamp: Date.now()})
+        post.save()
+        
         interaction.editReply('Sending...')
         User.find().then((users) => {    
             for (const user of users) {
@@ -32,8 +37,14 @@ module.exports = {
                         dm.send({ embeds: [embed] })
                           .catch((error) => {
                             interaction.followUp('An error ocurred, check output terminal for more info.')
-                            console.error(`[\x1b[31mHML\x1b[37m] Error: Failed to send ${target.username} ${title}. ${error.message}\n${error.error}`)
+                            logger.error(`Failed to send ${target.username} ${title}. ${error.message}\n${error.error}`)
                           })
+                        if (attachment.endsWith('.mp4') // Discord does not support video embeds for bots. (fuck you)
+                        || attachment.endsWith('.mov') 
+                        || attachment.endsWith('.webm') 
+                        || attachment.endsWith('.mkv') 
+                        || attachment.endsWith('.m4v'))
+                          dm.send(attachment)
                     })
                 })
             }

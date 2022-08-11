@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, BaseGuildEmojiManager } from "discord.js";
 import { User } from '../database';
-
+import * as logger from '../utils/console'
 module.exports = { 
     data: new SlashCommandBuilder()
             .setName("subscribe")
@@ -14,7 +14,7 @@ module.exports = {
                 interaction.editReply('You are already subscribed!')
             else {
                 user.save()
-                 console.log(`[\x1b[36mHML\x1b[37m] User ${interaction.member?.user.username} subscribed to the Mailing List`)
+                 logger.info(`User ${interaction.member?.user.username} subscribed to the Mailing List`)
                 interaction.editReply("Sucessful!")
             }
         })

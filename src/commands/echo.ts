@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction } from "discord.js";
-
+import * as logger from '../utils/console'
 module.exports = { 
     data: new SlashCommandBuilder()
             .setName("echo")
@@ -10,7 +10,7 @@ module.exports = {
                       .setRequired(true)),
 
     execute: async (interaction: ChatInputCommandInteraction) => {
-        console.log(`[\x1b[36mHML\x1b[37m] Echoing: ${interaction.options.getString('input') ?? ""}`)
+        logger.info(`Echoing: ${interaction.options.getString('input') ?? ""}`)
         interaction.reply(interaction.options.getString('input') ?? "")
     }
 }

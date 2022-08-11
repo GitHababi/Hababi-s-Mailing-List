@@ -1,10 +1,11 @@
 import { readdirSync } from "fs";
 import {Collection, REST, Routes, ChatInputCommandInteraction, Client } from "discord.js";
+import * as logger from './utils/console'
 
 export const commandResponses = new Collection<string,(interaction: ChatInputCommandInteraction) => Promise<void>>()
 
-export const registerCommands = (rest: REST) => {
-    console.log("[\x1b[36mHML\x1b[37m] Registering (/) commands")
+export const registerCommands = async (rest: REST) => {
+    logger.info("Registering (/) commands")
     const commandData = [];
     const commandFiles = readdirSync('./src/commands').filter((file)=>file.endsWith(".js") || file.endsWith(".ts"));
     for (const file of commandFiles) {
@@ -14,16 +15,16 @@ export const registerCommands = (rest: REST) => {
     }
 
     rest.put(Routes.applicationCommands(process.env.clientId ?? ''),{ body: commandData })
-    console.log("[\x1b[36mHML\x1b[37m] Done registering (/) commands")
+    logger.info("Done registering (/) commands")
 
 }
 
-export const registerEvents = (client: Client) => {
-    console.log("[\x1b[36mHML\x1b[37m] Registering events")
+export const registerEvents = async (client: Client) => {
+    logger.info("Registering events")
     const eventFiles = readdirSync('./src/events').filter((file)=>file.endsWith(".js") || file.endsWith(".ts"));
     for (const file of eventFiles) {
         const event = require(`./events/${file}`);
         client.on(event.event, event.action);
     }
-    console.log("[\x1b[36mHML\x1b[37m] Done registering events")
+    logger.info("Done registering events")
 }
