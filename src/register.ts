@@ -1,4 +1,4 @@
-import { readdirSync } from "fs";
+import { readdirSync,  } from "fs";
 import {Collection, REST, Routes, ChatInputCommandInteraction, Client } from "discord.js";
 import * as logger from './utils/console'
 
@@ -7,7 +7,7 @@ export const commandResponses = new Collection<string,(interaction: ChatInputCom
 export const registerCommands = async (rest: REST) => {
     logger.info("Registering (/) commands")
     const commandData = [];
-    const commandFiles = readdirSync('./src/commands').filter((file)=>file.endsWith(".js") || file.endsWith(".ts"));
+    const commandFiles = readdirSync(`./${process.env.searchLocation}/commands`).filter((file)=>file.endsWith(".js") || file.endsWith(".ts"));
     for (const file of commandFiles) {
         const command = require(`./commands/${file}`);
         commandData.push(command.data.toJSON())
@@ -21,7 +21,7 @@ export const registerCommands = async (rest: REST) => {
 
 export const registerEvents = async (client: Client) => {
     logger.info("Registering events")
-    const eventFiles = readdirSync('./src/events').filter((file)=>file.endsWith(".js") || file.endsWith(".ts"));
+    const eventFiles = readdirSync(`./${process.env.searchLocation}/events`).filter((file)=>file.endsWith(".js") || file.endsWith(".ts"));
     for (const file of eventFiles) {
         const event = require(`./events/${file}`);
         client.on(event.event, event.action);
