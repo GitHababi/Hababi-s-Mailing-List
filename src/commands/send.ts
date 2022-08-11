@@ -25,7 +25,7 @@ module.exports = {
         const embed = new EmbedBuilder()
                         .setTitle(title)
                         .setImage(attachment)
-        console.log(embed.data ?? 'ERORR: not foond')    
+        logger.info(`Meme sending: ${title}`)   
         let post = new Post({title: title, attachment: attachment, timestamp: Date.now()})
         post.save()
         
