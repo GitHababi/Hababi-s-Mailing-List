@@ -2,8 +2,8 @@ import { readdirSync,  } from "fs";
 import {Collection, REST, Routes, ChatInputCommandInteraction, Client } from "discord.js";
 import * as logger from './utils/console'
 
-export const commandResponses = new Collection<string,(interaction: ChatInputCommandInteraction) => Promise<void>>()
-
+export const commands = new Collection<string,any>()
+export const buttons = new Collection<string,any>();
 export const registerCommands = async (rest: REST) => {
     logger.info("Registering (/) commands")
     const commandData = [];
@@ -11,7 +11,7 @@ export const registerCommands = async (rest: REST) => {
     for (const file of commandFiles) {
         const command = require(`./commands/${file}`);
         commandData.push(command.data.toJSON())
-        commandResponses.set(command.data.name, command.execute);
+        commands.set(command.data.name, command);
     }
 
     rest.put(Routes.applicationCommands(process.env.clientId ?? ''),{ body: commandData })

@@ -1,8 +1,8 @@
 import { SlashCommandBuilder, ChatInputCommandInteraction, EmbedBuilder, EmbedAssertions, Attachment } from "discord.js";
-import { connection, User, Post } from "../database";
+import { posts, User, Post, ViewSession } from "../database";
 import { client } from '../index';
 import * as logger from '../utils/console'
-
+import { attachmentIsVideo } from '../utils/files'
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('send')
@@ -28,7 +28,7 @@ module.exports = {
         logger.info(`Meme sending: ${title}`)   
         let post = new Post({title: title, attachment: attachment, timestamp: Date.now()})
         post.save()
-        
+        posts.push(post)
         interaction.editReply('Sending...')
         User.find().then((users) => {    
             for (const user of users) {
@@ -39,16 +39,12 @@ module.exports = {
                             interaction.followUp('An error ocurred, check output terminal for more info.')
                             logger.error(`Failed to send ${target.username} ${title}. ${error.message}\n${error.error}`)
                           })
-                        if (attachment.endsWith('.mp4') // Discord does not support video embeds for bots. (fuck you)
-                        || attachment.endsWith('.mov') 
-                        || attachment.endsWith('.webm') 
-                        || attachment.endsWith('.mkv') 
-                        || attachment.endsWith('.m4v'))
+                        if (attachmentIsVideo(attachment))
                           dm.send(attachment)
                     })
                 })
             }
         })
-        
+        ViewSession.deleteMany({});
     }
 }
